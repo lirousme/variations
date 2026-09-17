@@ -14,3 +14,16 @@ Não defina APP_BASE_PATH em instalações comuns. Quando houver proxy reverso, 
 Front Controller Pattern → Router → Dispatcher → Static HTML Pages
 
 Arquitetura MPA (Multi-Page Application).
+
+## Modelo de combinações
+
+Cada **sistema** é um espaço de trabalho isolado. Dentro dele, o usuário cadastra tipos de elementos, elementos textuais e estruturas ordenadas. Uma estrutura guarda uma lista de IDs de tipos (por exemplo, `[1, 2, 1]`); portanto, ordem e repetição são preservadas e estruturas podem ter qualquer quantidade de posições.
+
+Ao gerar uma estrutura, o aplicativo produz o produto cartesiano dos elementos disponíveis em cada posição, sempre filtrando por `system_id` e pelo tipo exigido. As combinações geradas persistem tanto o texto final quanto os IDs dos elementos, na ordem usada. As chaves estrangeiras e as validações do controlador evitam que um tipo ou elemento de outro sistema seja utilizado.
+
+## Instalação
+
+1. Crie um banco MySQL e execute `database/schema.sql`.
+2. Copie `.env.example` para `.env` e informe as credenciais.
+3. Aponte o diretório público do servidor para `public_html/variations/`, com `mod_rewrite` habilitado no Apache.
+4. Acesse a aplicação, crie um sistema, seus tipos, elementos e estruturas; em seguida use **Gerar** para persistir as combinações.
