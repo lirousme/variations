@@ -22,6 +22,8 @@ O aplicativo detecta automaticamente quando está em um subdiretório. Só defin
 - Uma estrutura guarda uma lista ordenada de IDs de tipos, como `[1, 2, 1]`; ordem, repetição e quantidade variável de posições são preservadas.
 - Ao gerar uma estrutura, o aplicativo calcula o produto cartesiano dos elementos disponíveis em cada posição e persiste tanto o texto quanto os IDs dos elementos na ordem selecionada.
 - As chaves estrangeiras e as validações impedem que tipos ou elementos de um sistema sejam usados em outro.
+- A interface pagina sistemas, tipos, elementos, estruturas e combinações em grupos de 50 registros. Assim, apenas os itens visíveis são enviados ao navegador, mesmo quando o banco possui milhões de registros.
+- Para não criar um seletor HTML com milhões de opções, o cadastro de elementos e as posições das estruturas recebem o **ID do tipo**. A lista paginada de tipos permite consultar esse ID; o servidor confirma que ele pertence ao sistema ativo antes de salvar.
 
 ## Instalação
 
@@ -29,6 +31,15 @@ O aplicativo detecta automaticamente quando está em um subdiretório. Só defin
 2. Copie `.env.example` para `.env` e informe as credenciais.
 3. Publique a raiz deste repositório no diretório público desejado e habilite `mod_rewrite` no Apache. Permita a leitura de `.htaccess` com `AllowOverride FileInfo Options` (ou `AllowOverride All`).
 4. Acesse a URL pública, crie um sistema, seus tipos, elementos e estruturas; em seguida use **Gerar** para persistir as combinações.
+
+### Atualização de bancos existentes
+
+Além de publicar os arquivos atualizados, adicione os índices usados pela paginação:
+
+```sql
+ALTER TABLE combination_structures ADD INDEX idx_structures_system_id (system_id, id);
+ALTER TABLE generated_combinations ADD INDEX idx_combinations_system_id (system_id, id);
+```
 
 ## Arquitetura
 
