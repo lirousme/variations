@@ -19,7 +19,7 @@ O aplicativo detecta automaticamente quando está em um subdiretório. Só defin
 ## Modelo de combinações
 
 - Um sistema contém tipos de elementos, elementos textuais e estruturas.
-- Ao cadastrar um tipo, escolha **COM espaço** (padrão) ou **SEM espaço**. Elementos de tipos sem espaço são concatenados ao elemento anterior durante a geração; os demais recebem um espaço antes deles.
+- Ao cadastrar um tipo, escolha **COM espaço** (padrão) ou **SEM espaço**. Elementos de tipos sem espaço são concatenados ao elemento anterior durante a geração; os demais recebem um espaço antes deles. Também escolha **Maiúscula e minúscula** (padrão), que converte o texto para minúsculas no meio da combinação e capitaliza somente sua primeira letra quando estiver no início, ou **Inicial sempre maiúscula**, que preserva exatamente o texto cadastrado.
 - Uma estrutura guarda uma lista ordenada de IDs de tipos, como `[1, 2, 1]`; ordem, repetição e quantidade variável de posições são preservadas.
 - Ao gerar uma estrutura, o aplicativo calcula o produto cartesiano dos elementos disponíveis em cada posição e persiste tanto o texto quanto os IDs dos elementos na ordem selecionada.
 - As chaves estrangeiras e as validações impedem que tipos ou elementos de um sistema sejam usados em outro. Um elemento não pode repetir a mesma combinação de sistema, tipo e texto; o mesmo texto continua permitido em outro sistema ou tipo.
@@ -47,6 +47,8 @@ ALTER TABLE elements
   ADD UNIQUE INDEX unique_element_per_system_type_text (system_id, element_type_id, text_value_hash);
 ALTER TABLE element_types
   ADD COLUMN spacing ENUM('with_space', 'without_space') NOT NULL DEFAULT 'with_space' AFTER name;
+ALTER TABLE element_types
+  ADD COLUMN letter_case ENUM('mixed_case', 'initial_always_uppercase') NOT NULL DEFAULT 'mixed_case' AFTER spacing;
 ```
 
 ## Arquitetura
