@@ -28,9 +28,9 @@ final class CombinationService {
         $stmt = $this->db->prepare('SELECT slots FROM combination_structures WHERE id = ? AND system_id = ?');
         $stmt->execute([$structureId, $systemId]); $slots = json_decode((string) $stmt->fetchColumn(), true, 512, JSON_THROW_ON_ERROR);
         if (!$slots) return 0;
-        $byType = $this->db->prepare('SELECT elements.id, elements.text_value, element_types.spacing, element_types.letter_case FROM elements JOIN element_types ON element_types.id = elements.element_type_id WHERE elements.system_id = ? AND elements.element_type_id = ? ORDER BY elements.id');
+        $byType = $this->db->prepare('SELECT elements.id, elements.text_value, element_types.spacing, element_types.letter_case FROM elements JOIN element_type_assignments ON element_type_assignments.element_id = elements.id JOIN element_types ON element_types.id = element_type_assignments.element_type_id WHERE elements.system_id = ? AND element_type_assignments.element_type_id = ? AND element_types.system_id = ? ORDER BY elements.id');
         $choices = [];
-        foreach ($slots as $typeId) { $byType->execute([$systemId, $typeId]); $choices[] = $byType->fetchAll(); }
+        foreach ($slots as $typeId) { $byType->execute([$systemId, $typeId, $systemId]); $choices[] = $byType->fetchAll(); }
         if (in_array([], $choices, true)) return 0;
         $save = $this->db->prepare('INSERT IGNORE INTO generated_combinations (system_id, structure_id, value_text, element_ids) VALUES (?, ?, ?, ?)');
         $count = 0;
