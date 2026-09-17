@@ -10,6 +10,7 @@ CREATE TABLE element_types (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   system_id BIGINT UNSIGNED NOT NULL,
   name VARCHAR(120) NOT NULL,
+  spacing ENUM('with_space', 'without_space') NOT NULL DEFAULT 'with_space',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_type_per_system (system_id, name),
   INDEX idx_types_system_id (system_id, id),
