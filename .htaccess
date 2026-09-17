@@ -1,0 +1,9 @@
+Options -Indexes
+RewriteEngine On
+
+# O conteúdo de suporte não faz parte da URL pública.
+RewriteRule ^(?:database|src)(?:/|$) - [F,L,NC]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
