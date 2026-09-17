@@ -11,6 +11,7 @@ CREATE TABLE element_types (
   system_id BIGINT UNSIGNED NOT NULL,
   name VARCHAR(120) NOT NULL,
   spacing ENUM('with_space', 'without_space') NOT NULL DEFAULT 'with_space',
+  letter_case ENUM('mixed_case', 'initial_always_uppercase') NOT NULL DEFAULT 'mixed_case',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_type_per_system (system_id, name),
   INDEX idx_types_system_id (system_id, id),
