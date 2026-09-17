@@ -23,7 +23,7 @@ O aplicativo detecta automaticamente quando está em um subdiretório. Só defin
 - Ao gerar uma estrutura, o aplicativo calcula o produto cartesiano dos elementos disponíveis em cada posição e persiste tanto o texto quanto os IDs dos elementos na ordem selecionada.
 - As chaves estrangeiras e as validações impedem que tipos ou elementos de um sistema sejam usados em outro.
 - A interface possui páginas independentes para tipos, elementos, estruturas e combinações. Cada listagem (inclusive a de sistemas) é paginada em grupos de 10 registros; assim, apenas os itens visíveis são enviados ao navegador, mesmo quando o banco possui milhões de registros.
-- Para não criar um seletor HTML com milhões de opções, o cadastro de elementos e as posições das estruturas recebem o **ID do tipo**. A lista paginada de tipos permite consultar esse ID; o servidor confirma que ele pertence ao sistema ativo antes de salvar.
+- No cadastro de elementos e em cada posição de uma estrutura, o usuário seleciona um tipo disponível do sistema ativo. O servidor também confirma que os IDs enviados pertencem ao sistema antes de salvar.
 
 ## Instalação
 
