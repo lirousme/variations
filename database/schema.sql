@@ -20,11 +20,13 @@ CREATE TABLE elements (
   system_id BIGINT UNSIGNED NOT NULL,
   element_type_id BIGINT UNSIGNED NOT NULL,
   text_value TEXT NOT NULL,
+  text_value_hash BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(text_value, 256))) STORED,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_element_system FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
   CONSTRAINT fk_element_type FOREIGN KEY (element_type_id) REFERENCES element_types(id) ON DELETE RESTRICT,
   INDEX idx_elements_system_type (system_id, element_type_id),
-  INDEX idx_elements_system_id (system_id, id)
+  INDEX idx_elements_system_id (system_id, id),
+  UNIQUE KEY unique_element_per_system_type_text (system_id, element_type_id, text_value_hash)
 ) ENGINE=InnoDB;
 CREATE TABLE combination_structures (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

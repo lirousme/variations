@@ -21,7 +21,7 @@ O aplicativo detecta automaticamente quando está em um subdiretório. Só defin
 - Um sistema contém tipos de elementos, elementos textuais e estruturas.
 - Uma estrutura guarda uma lista ordenada de IDs de tipos, como `[1, 2, 1]`; ordem, repetição e quantidade variável de posições são preservadas.
 - Ao gerar uma estrutura, o aplicativo calcula o produto cartesiano dos elementos disponíveis em cada posição e persiste tanto o texto quanto os IDs dos elementos na ordem selecionada.
-- As chaves estrangeiras e as validações impedem que tipos ou elementos de um sistema sejam usados em outro.
+- As chaves estrangeiras e as validações impedem que tipos ou elementos de um sistema sejam usados em outro. Um elemento não pode repetir a mesma combinação de sistema, tipo e texto; o mesmo texto continua permitido em outro sistema ou tipo.
 - A interface possui páginas independentes para tipos, elementos, estruturas e combinações. Cada listagem (inclusive a de sistemas) é paginada em grupos de 10 registros; assim, apenas os itens visíveis são enviados ao navegador, mesmo quando o banco possui milhões de registros.
 - No cadastro de elementos e em cada posição de uma estrutura, o usuário seleciona um tipo disponível do sistema ativo. O servidor também confirma que os IDs enviados pertencem ao sistema antes de salvar.
 
@@ -41,6 +41,9 @@ ALTER TABLE combination_structures ADD INDEX idx_structures_system_id (system_id
 ALTER TABLE generated_combinations ADD INDEX idx_combinations_system_id (system_id, id);
 ALTER TABLE element_types ADD INDEX idx_types_system_id (system_id, id);
 ALTER TABLE elements ADD INDEX idx_elements_system_id (system_id, id);
+ALTER TABLE elements
+  ADD COLUMN text_value_hash BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(text_value, 256))) STORED,
+  ADD UNIQUE INDEX unique_element_per_system_type_text (system_id, element_type_id, text_value_hash);
 ```
 
 ## Arquitetura

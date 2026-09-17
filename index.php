@@ -13,6 +13,7 @@ $base = rtrim(getenv('APP_BASE_PATH') ?: dirname($_SERVER['SCRIPT_NAME'] ?? ''),
 function go(string $url): never { header('Location: ' . $url); exit; }
 function id(string $key): int { return filter_input(INPUT_POST, $key, FILTER_VALIDATE_INT) ?: 0; }
 function pageNumber(): int { return max(1, filter_input(INPUT_GET, 'page_number', FILTER_VALIDATE_INT) ?: 1); }
+function isDuplicateKey(PDOException $exception): bool { return ($exception->errorInfo[1] ?? null) === 1062; }
 function url(string $page, int $systemId = 0, array $parameters = []): string {
     global $base;
     $query = array_filter(['system' => $systemId ?: null, 'page' => $page, ...$parameters], static fn($value) => $value !== null && $value !== '');
@@ -51,7 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type = id('element_type_id');
         $valid = $db->prepare('SELECT 1 FROM element_types WHERE id = ? AND system_id = ?');
         $valid->execute([$type, $systemId]);
-        if ($valid->fetchColumn()) $db->prepare('INSERT INTO elements(system_id,element_type_id,text_value) VALUES(?,?,?)')->execute([$systemId, $type, trim($_POST['text_value'])]);
+        if ($valid->fetchColumn()) {
+            try {
+                $db->prepare('INSERT INTO elements(system_id,element_type_id,text_value) VALUES(?,?,?)')->execute([$systemId, $type, trim($_POST['text_value'])]);
+            } catch (PDOException $exception) {
+                if (isDuplicateKey($exception)) go(url('elements', $systemId, ['duplicate_element' => 1]));
+                throw $exception;
+            }
+        }
     }
     if ($action === 'structure') {
         $slots = array_values(array_filter(array_map('intval', $_POST['slots'] ?? [])));
@@ -123,6 +131,7 @@ if ($systemId && in_array($currentPage, ['elements', 'structures'], true)) {
 </nav><form method="post" class="new-system"><input type="hidden" name="action" value="system"><input name="name" required placeholder="Novo sistema"><button>+ Criar sistema</button></form><div class="system-list"><span class="eyebrow">SISTEMAS</span><?php foreach ($systems as $listed): ?><a class="<?= $systemId === (int) $listed['id'] ? 'current' : '' ?>" href="<?= htmlspecialchars(url($currentPage, (int) $listed['id'])) ?>"><?= htmlspecialchars($listed['name']) ?></a><?php endforeach; ?></div><?= pagination($systemsPage, $systemsLastPage, $currentPage, $systemId, 'systems_page') ?></aside>
 <main><?php if (!$systemId): ?><section class="empty"><p>Comece criando um sistema.</p></section><?php else: ?><header><div><span class="eyebrow">SISTEMA ATIVO</span><h1><?= htmlspecialchars($system['name']) ?></h1></div><a href="<?= htmlspecialchars(url('structures', $systemId)) ?>" class="button">Criar estrutura</a></header>
 <?php if (isset($_GET['created'])): ?><div class="notice"><?= intval($_GET['created']) ?> combinações novas geradas.</div><?php endif; ?>
+<?php if (isset($_GET['duplicate_element'])): ?><div class="notice">Já existe um elemento com este tipo e texto neste sistema.</div><?php endif; ?>
 <?php if ($currentPage === 'overview'): ?><section class="cards"><article><strong><?= $totals['types'] ?></strong><span>Tipos</span></article><article><strong><?= $totals['elements'] ?></strong><span>Elementos</span></article><article><strong><?= $totals['structures'] ?></strong><span>Estruturas</span></article><article><strong><?= $totals['combinations'] ?></strong><span>Combinações</span></article></section><section class="panel overview"><h2>Dados organizados em páginas</h2><p>Use o menu para cadastrar e consultar cada categoria separadamente. Cada listagem mostra no máximo 10 registros por página.</p></section>
 <?php elseif ($currentPage === 'types'): ?><section class="panel"><h2>Tipos de elemento</h2><form method="post"><input type="hidden" name="action" value="type"><input type="hidden" name="return_page" value="types"><input type="hidden" name="system_id" value="<?= $systemId ?>"><input name="name" required placeholder="Ex.: Verbo"><button>Adicionar</button></form><ul><?php foreach ($items as $type): ?><li><small>ID <?= $type['id'] ?></small><i></i><?= htmlspecialchars($type['name']) ?></li><?php endforeach; ?></ul><?= pagination($listPage, $listLastPage, 'types', $systemId) ?></section>
 <?php elseif ($currentPage === 'elements'): ?><section class="panel"><h2>Elementos</h2><p>Selecione um tipo pertencente a este sistema.</p><form method="post"><input type="hidden" name="action" value="element"><input type="hidden" name="return_page" value="elements"><input type="hidden" name="system_id" value="<?= $systemId ?>"><select name="element_type_id" required<?= $availableTypes ? '' : ' disabled' ?>><option value="" selected disabled><?= $availableTypes ? 'Selecione o tipo' : 'Cadastre um tipo primeiro' ?></option><?php foreach ($availableTypes as $type): ?><option value="<?= $type['id'] ?>"><?= htmlspecialchars($type['name']) ?></option><?php endforeach; ?></select><input name="text_value" required placeholder="Texto do elemento"><button<?= $availableTypes ? '' : ' disabled' ?>>Salvar</button></form><ul><?php foreach ($items as $element): ?><li><small><?= htmlspecialchars($typeNames[$element['element_type_id']] ?? 'Tipo removido') ?></small><?= htmlspecialchars($element['text_value']) ?></li><?php endforeach; ?></ul><?= pagination($listPage, $listLastPage, 'elements', $systemId) ?></section>
