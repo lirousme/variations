@@ -12,6 +12,7 @@ CREATE TABLE element_types (
   name VARCHAR(120) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_type_per_system (system_id, name),
+  INDEX idx_types_system_id (system_id, id),
   CONSTRAINT fk_type_system FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 CREATE TABLE elements (
@@ -22,7 +23,8 @@ CREATE TABLE elements (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_element_system FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
   CONSTRAINT fk_element_type FOREIGN KEY (element_type_id) REFERENCES element_types(id) ON DELETE RESTRICT,
-  INDEX idx_elements_system_type (system_id, element_type_id)
+  INDEX idx_elements_system_type (system_id, element_type_id),
+  INDEX idx_elements_system_id (system_id, id)
 ) ENGINE=InnoDB;
 CREATE TABLE combination_structures (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
