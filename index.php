@@ -9,10 +9,12 @@ const PAGES = ['overview', 'types', 'elements', 'structures', 'combinations'];
 
 $db = Database::connect();
 $base = rtrim(getenv('APP_BASE_PATH') ?: dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
+$cssVersion = (string) filemtime(__DIR__ . '/assets/app.css');
 
 function go(string $url): never { header('Location: ' . $url); exit; }
 function id(string $key): int { return filter_input(INPUT_POST, $key, FILTER_VALIDATE_INT) ?: 0; }
 function pageNumber(): int { return max(1, filter_input(INPUT_GET, 'page_number', FILTER_VALIDATE_INT) ?: 1); }
+function postedPageNumber(): int { return max(1, filter_input(INPUT_POST, 'page_number', FILTER_VALIDATE_INT) ?: 1); }
 function url(string $page, int $systemId = 0, array $parameters = []): string {
     global $base;
     $query = array_filter(['system' => $systemId ?: null, 'page' => $page, ...$parameters], static fn($value) => $value !== null && $value !== '');
@@ -93,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if ($action === 'lexical_chunk') {
         $db->prepare('UPDATE generated_combinations SET lexical_chunked = 1 WHERE id = ? AND system_id = ?')->execute([id('combination_id'), $systemId]);
-        go(url('combinations', $systemId, ['page_number' => pageNumber()]));
+        go(url('combinations', $systemId, ['page_number' => postedPageNumber()]));
     }
     go(url($redirectPage, $systemId));
 }
@@ -154,7 +156,7 @@ if ($systemId && in_array($currentPage, ['elements', 'structures'], true)) {
 }
 ?>
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lexical Chunks</title><link rel="stylesheet" href="<?= htmlspecialchars($base) ?>/assets/app.css"></head><body>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lexical Chunks</title><link rel="stylesheet" href="<?= htmlspecialchars($base) ?>/assets/app.css?v=<?= htmlspecialchars($cssVersion) ?>"></head><body>
 <aside><div class="brand">◈ <span>Lexical<br><b>Chunks</b></span></div><nav>
 <?php foreach (['overview' => 'Visão geral', 'types' => 'Tipos', 'elements' => 'Elementos', 'structures' => 'Estruturas', 'combinations' => 'Combinações'] as $page => $label): ?><a class="<?= $currentPage === $page ? 'active' : '' ?>" href="<?= htmlspecialchars(url($page, $systemId)) ?>"><?= $label ?></a><?php endforeach; ?>
 </nav><form method="post" class="new-system"><input type="hidden" name="action" value="system"><input name="name" required placeholder="Novo sistema"><button>+ Criar sistema</button></form><div class="system-list"><span class="eyebrow">SISTEMAS</span><?php foreach ($systems as $listed): ?><a class="<?= $systemId === (int) $listed['id'] ? 'current' : '' ?>" href="<?= htmlspecialchars(url($currentPage, (int) $listed['id'])) ?>"><?= htmlspecialchars($listed['name']) ?></a><?php endforeach; ?></div><?= pagination($systemsPage, $systemsLastPage, $currentPage, $systemId, 'systems_page') ?></aside>
