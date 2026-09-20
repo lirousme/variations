@@ -50,6 +50,7 @@ CREATE TABLE generated_combinations (
   structure_id BIGINT UNSIGNED NOT NULL,
   value_text TEXT NOT NULL,
   element_ids JSON NOT NULL COMMENT 'Ordered array of selected element IDs',
+  lexical_chunked INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_combination_system FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
   CONSTRAINT fk_combination_structure FOREIGN KEY (structure_id) REFERENCES combination_structures(id) ON DELETE CASCADE,

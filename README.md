@@ -60,6 +60,8 @@ ALTER TABLE element_types
   ADD COLUMN spacing ENUM('with_space', 'without_space') NOT NULL DEFAULT 'with_space' AFTER name;
 ALTER TABLE element_types
   ADD COLUMN letter_case ENUM('mixed_case', 'initial_always_uppercase') NOT NULL DEFAULT 'mixed_case' AFTER spacing;
+ALTER TABLE generated_combinations
+  ADD COLUMN lexical_chunked INT NOT NULL DEFAULT 0 AFTER element_ids;
 ```
 
 ## Arquitetura
