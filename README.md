@@ -24,7 +24,7 @@ O aplicativo detecta automaticamente quando está em um subdiretório. Só defin
 - Ao gerar uma estrutura, o aplicativo calcula o produto cartesiano dos elementos disponíveis em cada posição e persiste tanto o texto quanto os IDs dos elementos na ordem selecionada.
 - As chaves estrangeiras e as validações impedem que tipos ou elementos de um sistema sejam usados em outro. Um elemento não pode repetir o mesmo texto no sistema, mas pode ser associado a vários tipos; ao cadastrá-lo novamente com outros tipos, os novos vínculos são adicionados. O mesmo texto continua permitido em outro sistema.
 - A interface possui páginas independentes para tipos, elementos, estruturas e combinações. Cada listagem (inclusive a de sistemas) é paginada em grupos de 10 registros; assim, apenas os itens visíveis são enviados ao navegador, mesmo quando o banco possui milhões de registros.
-- No cadastro de elementos, o usuário seleciona um ou mais tipos disponíveis do sistema ativo; em cada posição de uma estrutura, seleciona um único tipo. O servidor também confirma que todos os IDs enviados pertencem ao sistema antes de salvar.
+- No cadastro de elementos, o usuário seleciona um ou mais tipos disponíveis do sistema ativo e pode informar vários textos separados por ponto e vírgula; em cada posição de uma estrutura, seleciona um único tipo. O servidor também confirma que todos os IDs enviados pertencem ao sistema antes de salvar.
 
 ## Instalação
 
